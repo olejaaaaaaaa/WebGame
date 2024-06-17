@@ -1,24 +1,22 @@
+<!DOCTYPE html>
 <html>
-    <body style="margin:0; overflow-y: hidden;overflow-x: hidden;">
-    <canvas id="my_canvas" style="width:640; height: 640;"></canvas>
-    <script>
+  <head>
+    <meta charset="utf-8" />
+    <title>My Wasm Project</title>
+  </head>
 
-let canvas = document.getElementById("my_canvas");
-let gl = canvas.getContext("webgl");
-let imports = {
-    env: {
-        js_clear_screen_to_color: function (red, green, blue, alpha) {
-            gl.clearColor(red, green, blue, alpha);
-            gl.clear(gl.COLOR_BUFFER_BIT);
-        }
-    }
-};
+  <body>
+    <script type="module">
+      // Importing WASM as a JS module requires us to call an init function provided by the default export.
+      // This is planned to be changed in the future.
+      import { default as wasm, greet } from "./pkg/yellow.js";
 
-
-    WebAssembly.instantiateStreaming(fetch('target/wasm32-unknown-unknown/debug/web.wasm'), imports).then(function (result) {
-        result.instance.exports.main();
-    })
-        
+      wasm().then((module) => {
+        // The boiler plate project comes with a `greet` function that calls:
+        // `alert("Hello, hello-wasm!");`
+        greet();
+      });
+      
     </script>
-    </body>
+  </body>
 </html>

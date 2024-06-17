@@ -1,15 +1,15 @@
+#![allow(warnings)]
 
+mod utils;
+use wasm_bindgen::prelude::*;
+use web_sys::console;
 
-
+#[wasm_bindgen]
 extern "C" {
-   fn js_clear_screen_to_color(r: f32, g: f32, b: f32, a: f32);
+    fn alert(s: &str);
 }
 
-#[no_mangle]
-fn main() {
-unsafe {
-   js_clear_screen_to_color(0.5, 0.3, 0.0, 1.0);
+#[wasm_bindgen]
+pub fn greet() {
+    alert("Подтвердите, что вы юлька бздюлька");
 }
-}
-
-
