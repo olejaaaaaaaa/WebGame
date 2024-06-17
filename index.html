@@ -15,7 +15,7 @@ let imports = {
 };
 
 
-    WebAssembly.instantiateStreaming(fetch('src/web.wasm'), imports).then(function (result) {
+    WebAssembly.instantiateStreaming(fetch('Web.wasm'), imports).then(function (result) {
         result.instance.exports.main();
     })
         
