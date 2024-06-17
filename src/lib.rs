@@ -70,9 +70,9 @@ pub fn create_shader(
 
 pub fn setup_shaders(gl: &WebGlRenderingContext) -> Result<WebGlProgram, JsValue> {
     let vertex_shader_source = "
-        attribute vec3 coordinates;
+        attribute vec3 pos;
         void main(void) {
-            gl_Position = vec4(coordinates, 1.0);
+            gl_Position = vec4(pos, 1.0);
         }
         ";
 
@@ -127,7 +127,7 @@ pub fn setup_vertices(gl: &WebGlRenderingContext, vertices: &[f32], shader_progr
         WebGlRenderingContext::STATIC_DRAW,
     );
 
-    let coordinates_location = gl.get_attrib_location(&shader_program, "coordinates");
+    let coordinates_location = gl.get_attrib_location(&shader_program, "pos");
 
     gl.bind_buffer(WebGlRenderingContext::ARRAY_BUFFER, Some(&vertex_buffer));
     gl.vertex_attrib_pointer_with_i32(
@@ -154,7 +154,7 @@ pub fn main(canvas_id: &str) {
     setup_vertices(&gl, &vertices, &shader_program);
 
     gl.draw_arrays(
-        WebGlRenderingContext::TRIANGLES,
+        WebGlRenderingContext::LINE_LOOP,
         0,
         (vertices.len() / 3) as i32,
     );
