@@ -6,17 +6,40 @@
   </head>
 
   <body>
+
+    <button id="startbtn">Start</button>
+
+
+    <audio id="music" src="./src/sound/music.mp3" style="display: none;" loop></audio>
+
+
+
     <script type="module">
       // Importing WASM as a JS module requires us to call an init function provided by the default export.
       // This is planned to be changed in the future.
       import { default as wasm, greet } from "./pkg/yellow.js";
 
+      let m = document.getElementById("music");
+
       wasm().then((module) => {
         // The boiler plate project comes with a `greet` function that calls:
         // `alert("Hello, hello-wasm!");`
         greet();
+
       });
       
+      startbtn.addEventListener("click", () => {
+
+
+  startbtn.style.display = "none";
+  //Wait for the music to start
+  music.play().then(() => {
+    //Hide the loader and show the content
+  
+  });
+});
+      
+
     </script>
   </body>
 </html>

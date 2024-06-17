@@ -1,8 +1,8 @@
 #![allow(warnings)]
 
-mod utils;
 use wasm_bindgen::prelude::*;
-use web_sys::console;
+use web_sys::{WebGlRenderingContext, WebGlShader, WebGlProgram, console};
+extern crate js_sys;
 
 #[wasm_bindgen]
 extern "C" {
