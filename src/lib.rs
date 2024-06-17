@@ -144,6 +144,7 @@ pub fn setup_vertices(gl: &WebGlRenderingContext, vertices: &[f32], shader_progr
 #[wasm_bindgen]
 pub fn main(canvas_id: &str) {
     let gl: WebGlRenderingContext = init_webgl_context(canvas_id).unwrap();
+    gl.line_width(50.0);
     let shader_program: WebGlProgram = setup_shaders(&gl).unwrap();
     let vertices: [f32; 9] = [
         0.0, 1.0, 0.0, // top
@@ -153,7 +154,7 @@ pub fn main(canvas_id: &str) {
 
     setup_vertices(&gl, &vertices, &shader_program);
 
-    gl.line_width(1.0);
+   
 
     gl.draw_arrays(
         WebGlRenderingContext::LINE_LOOP,
