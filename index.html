@@ -11,7 +11,6 @@
       // This is planned to be changed in the future.
       import { default as wasm, greet } from "./pkg/yellow.js";
 
-<<<<<<< HEAD
       wasm().then((module) => {
         // The boiler plate project comes with a `greet` function that calls:
         // `alert("Hello, hello-wasm!");`
@@ -21,13 +20,3 @@
     </script>
   </body>
 </html>
-=======
-
-    WebAssembly.instantiateStreaming(fetch('Web.wasm'), imports).then(function (result) {
-        result.instance.exports.main();
-    })
-        
-    </script>
-    </body>
-</html>
->>>>>>> a6bc5ca9101a7cb971cdc53724604f2d2aeaa5ad
