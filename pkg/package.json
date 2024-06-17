@@ -1,0 +1,17 @@
+{
+  "name": "yellow",
+  "collaborators": [
+    "olejaaaaaaaa <k09901173@gmail.com>"
+  ],
+  "version": "0.1.0",
+  "files": [
+    "yellow_bg.wasm",
+    "yellow.js",
+    "yellow.d.ts"
+  ],
+  "module": "yellow.js",
+  "types": "yellow.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
