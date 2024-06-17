@@ -153,6 +153,8 @@ pub fn main(canvas_id: &str) {
 
     setup_vertices(&gl, &vertices, &shader_program);
 
+    gl.line_width(50.0);
+
     gl.draw_arrays(
         WebGlRenderingContext::LINE_LOOP,
         0,

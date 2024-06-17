@@ -6,8 +6,7 @@
   </head>
 
   <body>
-    <canvas id="my_canvas", style="height:200px;width:200px"></canvas>
-    <button id="startbtn", style="height:200px;width:200px">Start</button>
+    <canvas id="my_canvas", style="height:100%;width:100%"></canvas>    
     <audio id="music" src="./src/sound/music.mp3" style="display: none;" loop></audio>
 
 
@@ -19,12 +18,6 @@
       wasm().then((module) => {
           main("my_canvas");
       });
-      
-      startbtn.addEventListener("click", () => {
-            startbtn.style.display = "none";
-            music.play();
-      });
-      
 
     </script>
   </body>

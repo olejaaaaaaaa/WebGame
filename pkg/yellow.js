@@ -336,6 +336,9 @@ function __wbg_get_imports() {
         const ret = getObject(arg0).getShaderParameter(getObject(arg1), arg2 >>> 0);
         return addHeapObject(ret);
     };
+    imports.wbg.__wbg_lineWidth_dbfe6d243b93c325 = function(arg0, arg1) {
+        getObject(arg0).lineWidth(arg1);
+    };
     imports.wbg.__wbg_linkProgram_af5fed9dc3f1cdf9 = function(arg0, arg1) {
         getObject(arg0).linkProgram(getObject(arg1));
     };
