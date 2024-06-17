@@ -6,8 +6,7 @@
 pub const VERTEX_SHADER_1: &str = r#"
     #version 140
 
-    in vec3 pos;
-    in float Time;
+    attribute vec3 pos;
 
     void main() {
         gl_Position = vec4(pos, 1.0);
@@ -35,6 +34,16 @@ pub const VERTEX_SHADER_2: &str = r#"
     }
 
 "#;
+
+
+pub const FRAGMENT_SHADER_1: &str = r#"
+    #version 140
+
+    void main() {
+        gl_FragColor = vec4(0.5, 0.225, 0.0, 1.0);
+    }
+"#;
+
 
 pub fn view_matrix(position: &[f32; 3], direction: &[f32; 3], up: &[f32; 3]) -> [[f32; 4]; 4] {
     let f = {
@@ -69,21 +78,3 @@ pub fn view_matrix(position: &[f32; 3], direction: &[f32; 3], up: &[f32; 3]) -> 
         [p[0], p[1], p[2], 1.0],
     ]
 }
-
-
-
-
-
-pub const FRAGMENT_SHADER_1: &str = r#"
-    #version 140
-
-    out vec4 color;
-    in float Time_x;
-    in float Time_y;
-    in float Time_z;
-
-    void main() {
-        float z = 1/(1.0 - Time_z);
-        color = vec4( cos(Time_x) * z, cos(Time_y) * z, Time_z * z, 1.0);
-    }
-"#;
