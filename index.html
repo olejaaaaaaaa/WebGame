@@ -9,15 +9,23 @@
     <canvas id="my_canvas", style="height:100%;width:100%"></canvas>    
     <audio id="music" src="./src/sound/music.mp3" style="display: none;" loop></audio>
 
-
     <script type="module">
-      import { default as wasm, main } from "./pkg/yellow.js";
+      import { default as wasm, main, Event } from "./pkg/yellow.js";
 
       let m = document.getElementById("music");
 
       wasm().then((module) => {
-          main("my_canvas");
+
+
+        document.addEventListener('keydown', function(event) {
+          Event(event.key);
+        });          
+            
+          
+          
       });
+
+      
 
     </script>
   </body>
