@@ -4,40 +4,18 @@
 
 
 pub const VERTEX_SHADER_1: &str = r#"
-    #version 140
+    
 
-    attribute vec3 pos;
+    attribute vec3 coordinates;
 
     void main() {
-        gl_Position = vec4(pos, 1.0);
+        gl_Position = vec4(coordinates, 1.0);
     }
 
 "#;
-
-
-pub const VERTEX_SHADER_2: &str = r#"
-    #version 140
-
-    in vec3 pos;
-    uniform mat4 matrix;
-    uniform mat4 view;
-    uniform mat4 camera;
-    out float Time_x;
-    out float Time_y;
-    out float Time_z;
-
-    void main() {
-        gl_Position = camera  * matrix * vec4(pos, 1.0);
-        Time_x = pos[0];
-        Time_y = pos[1];
-        Time_z = pos[2];
-    }
-
-"#;
-
 
 pub const FRAGMENT_SHADER_1: &str = r#"
-    #version 140
+    
 
     void main() {
         gl_FragColor = vec4(0.5, 0.225, 0.0, 1.0);

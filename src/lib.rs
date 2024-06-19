@@ -20,8 +20,9 @@ struct Context {
     shader_program: Vec<WebGlProgram>,
     vertex_shader: Vec<WebGlShader>,
     fragment_shader: Vec<WebGlShader>,
-    elements: Vec<[u8; 2]>,
+    elements: Vec<[u8; 2]>,                 // index shader program, index vertex_buffer
     clear_color: (f32, f32, f32, f32),
+    vertex: Vec<Vec<f32>>,
 }
 
 
@@ -54,6 +55,7 @@ impl Context {
             fragment_shader: vec![],
             elements: vec![],
             clear_color: (0.0, 0.0, 0.0, 1.0),
+            vertex: vec![vec![]],
         }
     }
 
@@ -87,24 +89,69 @@ impl Context {
     }
 
     fn create_program_from(&mut self, vertex_shader: &str, fragment_shader: &str) {
-        let fs = self.gl.create_shader(WebGlRenderingContext::FRAGMENT_SHADER).unwrap();
-        self.gl.shader_source(&fs, vertex_shader);
-        self.gl.compile_shader(&fs);
 
         let vs = self.gl.create_shader(WebGlRenderingContext::VERTEX_SHADER).unwrap();
-        self.gl.shader_source(&vs, fragment_shader);
+        self.gl.shader_source(&vs, vertex_shader);
         self.gl.compile_shader(&vs);
+        let log = self.gl.get_shader_info_log(&vs).unwrap();
+        print(log);
+
+        let fs = self.gl.create_shader(WebGlRenderingContext::FRAGMENT_SHADER).unwrap();
+        self.gl.shader_source(&fs, fragment_shader);
+        self.gl.compile_shader(&fs);
+        let log = self.gl.get_shader_info_log(&vs).unwrap();
+        print(log);
+
 
         let program = self.gl.create_program().unwrap();
         self.gl.attach_shader(&program, &vs);
         self.gl.attach_shader(&program, &fs);
         self.gl.link_program(&program);
 
+
+        let log = self.gl.get_program_info_log(&program).unwrap();
+        print(log);
+
         self.shader_program.push(program);
 
         self.gl.delete_shader(Some(&vs));
         self.gl.delete_shader(Some(&fs));
     }
+
+
+    fn create_vertex_buffer_dynamic(&mut self, vertex: Vec<f32>) {
+        let vertices_array = unsafe { js_sys::Float32Array::view(&vertex) };
+        let vertex_buffer = self.gl.create_buffer().unwrap();
+
+        self.gl.bind_buffer(WebGlRenderingContext::ARRAY_BUFFER, Some(&vertex_buffer));
+        self.gl.buffer_data_with_array_buffer_view(
+        WebGlRenderingContext::ARRAY_BUFFER,
+        &vertices_array,
+        WebGlRenderingContext::STATIC_DRAW,
+        );
+
+        let coordinates_location = self.gl.get_attrib_location(&self.shader_program[0], "coordinates");
+
+        self.gl.bind_buffer(WebGlRenderingContext::ARRAY_BUFFER, Some(&vertex_buffer));
+        self.gl.vertex_attrib_pointer_with_i32(
+        coordinates_location as u32,
+        3,
+        WebGlRenderingContext::FLOAT,
+        false,
+        0,
+        0,
+        );
+
+        self.gl.enable_vertex_attrib_array(coordinates_location as u32);
+        self.gl.use_program(Some(&self.shader_program[0]));
+        
+    }
+
+    fn create_vertex_buffer_static(&mut self) {
+
+    }
+
+
 }
 
 enum Event<'k> {
@@ -173,11 +220,30 @@ fn print2<T: Into<JsValue>>(v: T, v2: T) {
 
 
 
+
+
+
+
+
 #[wasm_bindgen]
 pub fn main(canvas: &str) {
 
-        let gl = Context::new(canvas);   
-        gl.clear();
+    
+let vertices = vec![
+    0.0, 0.5, 0.0, // top
+    -0.5, -0.5, 0.0, // bottom left
+    0.5, -0.5, 0.0, // bottom right
+];
+
+
+
+    let mut gl = Context::new(canvas); 
+
+    
+gl.create_program_from(VERTEX_SHADER_1, FRAGMENT_SHADER_1);
+gl.create_vertex_buffer_dynamic(vertices);
+
+
         //gl.set_clear_color(0.0, 0.0, 0.0, 1.0);
 
         event(move |mut ev| {    
@@ -190,18 +256,21 @@ pub fn main(canvas: &str) {
 
 
                 Event::Update() => {
-                        
+                      
+                    gl.clear();
+            
+            
+                    gl.gl.draw_arrays(
+                        WebGlRenderingContext::LINE_LOOP,
+                        0,
+                        (3) as i32,
+                    );
                 }
 
 
                 Event::Resize(width, height) => {
 
-                    gl.gl.viewport(
-                        0,
-                        0,
-                        width as i32,
-                        height as i32,
-                    );
+                    
                 
                     gl.clear();
                 }
