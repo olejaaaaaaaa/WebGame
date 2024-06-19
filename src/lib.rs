@@ -13,9 +13,17 @@ extern crate js_sys;
 
 mod shaders;
 
+#[derive(Clone, Debug)]
 struct Context {
     gl: WebGlRenderingContext,
+    vertex_buffer: Vec<WebGlBuffer>,
+    shader_program: Vec<WebGlProgram>,
+    vertex_shader: Vec<WebGlShader>,
+    fragment_shader: Vec<WebGlShader>,
+    elements: Vec<[u8; 2]>,
+    clear_color: (f32, f32, f32, f32),
 }
+
 
 impl Context {
     fn new(canvas: &str) -> Self {
@@ -36,19 +44,87 @@ impl Context {
             canvas.height().try_into().unwrap(),
         );
 
-        Self { gl }
+        gl.clear_color(0.0, 0.0, 0.0, 1.0);
+
+        Self { 
+            gl,
+            vertex_buffer: vec![],
+            shader_program: vec![],
+            vertex_shader: vec![],
+            fragment_shader: vec![],
+            elements: vec![],
+            clear_color: (0.0, 0.0, 0.0, 1.0),
+        }
     }
 
-    fn clear(&self, r: f32, g: f32, b: f32) {
-        self.gl.clear_color(r, g, b, 1.0);
+    fn set_clear_color(&self, r: f32, g: f32, b: f32, a: f32) {
+        self.gl.clear_color(r, g, b, a);    
+    }
+
+    fn clear(&self) {
         self.gl.clear(WebGlRenderingContext::COLOR_BUFFER_BIT);
+    }
+
+    fn create_vertex_shader(&mut self, src: &str) {
+        let vs = self.gl.create_shader(WebGlRenderingContext::VERTEX_SHADER).unwrap();
+        self.gl.shader_source(&vs, src);
+        self.gl.compile_shader(&vs);
+        self.vertex_shader.push(vs);
+    }
+
+    fn create_fragment_shader(&mut self, src: &str) {
+        let fs = self.gl.create_shader(WebGlRenderingContext::FRAGMENT_SHADER).unwrap();
+        self.gl.shader_source(&fs, src);
+        self.gl.compile_shader(&fs);
+        self.fragment_shader.push(fs);
+    }
+
+    fn create_program_shader(&mut self, vertex_shader_index: usize, fragment_shader_index: usize) {
+            let program = self.gl.create_program().unwrap();
+            self.gl.attach_shader(&program, &self.vertex_shader[vertex_shader_index]);
+            self.gl.attach_shader(&program, &self.fragment_shader[fragment_shader_index]);
+            self.gl.link_program(&program);
+    }
+
+    fn create_program_from(&mut self, vertex_shader: &str, fragment_shader: &str) {
+        let fs = self.gl.create_shader(WebGlRenderingContext::FRAGMENT_SHADER).unwrap();
+        self.gl.shader_source(&fs, vertex_shader);
+        self.gl.compile_shader(&fs);
+
+        let vs = self.gl.create_shader(WebGlRenderingContext::VERTEX_SHADER).unwrap();
+        self.gl.shader_source(&vs, fragment_shader);
+        self.gl.compile_shader(&vs);
+
+        let program = self.gl.create_program().unwrap();
+        self.gl.attach_shader(&program, &vs);
+        self.gl.attach_shader(&program, &fs);
+        self.gl.link_program(&program);
+
+        self.shader_program.push(program);
+
+        self.gl.delete_shader(Some(&vs));
+        self.gl.delete_shader(Some(&fs));
     }
 }
 
-enum Event<'s> {
-    Key(&'s str),
+enum Event<'k> {
+    KeyUp(&'k str),
+    KeyDown(&'k str),
     Update(),
-    Resize(usize, usize)
+    Resize(usize, usize),
+    Touch,
+    Mouse,
+}
+
+enum EventTouch {
+    Start,
+    Move,
+    End,
+}
+
+enum MouseEvent {
+    Start,
+    End,
 }
 
 thread_local! {
@@ -63,7 +139,15 @@ pub fn event(function: impl FnMut(Event) + 'static) {
 
 #[wasm_bindgen]
 pub fn keyboard_event(ev: &str) {
-    EVENT_HANDLER.with(|_ev|{_ev.borrow_mut()(Event::Key(ev))});
+
+    if ev.chars().next() == Some('u') {
+        //print("up");
+        EVENT_HANDLER.with(|_ev|{_ev.borrow_mut()(Event::KeyUp(&ev[1..]))});
+    } else {
+        //print("down");
+        EVENT_HANDLER.with(|_ev|{_ev.borrow_mut()(Event::KeyDown(&ev[1..]))});
+    }
+    
 }
 
 #[wasm_bindgen]
@@ -87,139 +171,43 @@ fn print2<T: Into<JsValue>>(v: T, v2: T) {
     console::log_2(&v.into(), &v2.into());
 }
 
-pub fn create_shader(
-    gl: &WebGlRenderingContext,
-    shader_type: u32,
-    source: &str,
-) -> Result<WebGlShader, JsValue> {
-    let shader = gl
-        .create_shader(shader_type)
-        .ok_or_else(|| JsValue::from_str("Unable to create shader object"))?;
 
-    gl.shader_source(&shader, source);
-    gl.compile_shader(&shader);
-
-    if gl
-        .get_shader_parameter(&shader, WebGlRenderingContext::COMPILE_STATUS)
-        .as_bool()
-        .unwrap_or(false)
-    {
-        Ok(shader)
-    } else {
-        Err(JsValue::from_str(
-            &gl.get_shader_info_log(&shader)
-                .unwrap_or_else(|| "Unknown error creating shader".into()),
-        ))
-    }
-}
-
-pub fn setup_shaders(gl: &WebGlRenderingContext) -> Result<WebGlProgram, JsValue> {
-    let vertex_shader_source = "
-        attribute vec3 coordinates;
-        void main(void) {
-            gl_Position = vec4(coordinates, 1.0);
-        }
-        ";
-
-    let fragment_shader_source = "
-        precision mediump float;
-        
-        void main(void) {
-            gl_FragColor = vec4(1.0, 0.5, 0.0, 1.0);
-        }
-        ";
-
-    let vertex_shader = create_shader(
-        &gl,
-        WebGlRenderingContext::VERTEX_SHADER,
-        vertex_shader_source,
-    )
-    .unwrap();
-    let fragment_shader = create_shader(
-        &gl,
-        WebGlRenderingContext::FRAGMENT_SHADER,
-        fragment_shader_source,
-    )
-    .unwrap();
-
-    let shader_program = gl.create_program().unwrap();
-    gl.attach_shader(&shader_program, &vertex_shader);
-    gl.attach_shader(&shader_program, &fragment_shader);
-    gl.link_program(&shader_program);
-
-    if gl
-        .get_program_parameter(&shader_program, WebGlRenderingContext::LINK_STATUS)
-        .as_bool()
-        .unwrap_or(false)
-    {
-        gl.use_program(Some(&shader_program));
-        Ok(shader_program)
-    } else {
-        return Err(JsValue::from_str(
-            &gl.get_program_info_log(&shader_program)
-                .unwrap_or_else(|| "Unknown error linking program".into()),
-        ));
-    }
-}
-
-pub fn setup_vertices(gl: &WebGlRenderingContext, vertices: &[f32], shader_program: &WebGlProgram) {
-    let vertices_array = unsafe { js_sys::Float32Array::view(&vertices) };
-    let vertex_buffer = gl.create_buffer().unwrap();
-
-    gl.bind_buffer(WebGlRenderingContext::ARRAY_BUFFER, Some(&vertex_buffer));
-    gl.buffer_data_with_array_buffer_view(
-        WebGlRenderingContext::ARRAY_BUFFER,
-        &vertices_array,
-        WebGlRenderingContext::STATIC_DRAW,
-    );
-
-    let coordinates_location = gl.get_attrib_location(&shader_program, "coordinates");
-
-    gl.bind_buffer(WebGlRenderingContext::ARRAY_BUFFER, Some(&vertex_buffer));
-    gl.vertex_attrib_pointer_with_i32(
-        coordinates_location as u32,
-        3,
-        WebGlRenderingContext::FLOAT,
-        false,
-        0,
-        0,
-    );
-    gl.enable_vertex_attrib_array(coordinates_location as u32);
-}
 
 #[wasm_bindgen]
 pub fn main(canvas: &str) {
 
-    let document = web_sys::window().unwrap().document().unwrap();
-    let canvas = document.get_element_by_id(canvas).unwrap();
-    let canvas: web_sys::HtmlCanvasElement = canvas.dyn_into::<web_sys::HtmlCanvasElement>().unwrap();
-    let gl: WebGlRenderingContext = canvas
-        .get_context("webgl").unwrap()
-        .unwrap()
-        .dyn_into::<WebGlRenderingContext>()
-        .unwrap();
+        let gl = Context::new(canvas);   
+        gl.clear();
+        //gl.set_clear_color(0.0, 0.0, 0.0, 1.0);
 
-    gl.viewport(
-        0,
-        0,
-        canvas.width().try_into().unwrap(),
-        canvas.height().try_into().unwrap(),
-    );
+        event(move |mut ev| {    
 
-    let shader_program: WebGlProgram = setup_shaders(&gl).unwrap();
-    let vertices: [f32; 9] = [
-        0.0, 1.0, 0.0, // top
-        -1.0, -1.0, 0.0, // bottom left
-        1.0, -1.0, 0.0, // bottom right
-    ];
+            match ev {
 
-    setup_vertices(&gl, &vertices, &shader_program);
+                Event::KeyUp(key) => {
+                    gl.clear();
+                }
 
-    print("AAAA");
-    gl.draw_arrays(
-        WebGlRenderingContext::LINE_LOOP,
-        0,
-        (vertices.len() / 3) as i32,
-    );
-  
+
+                Event::Update() => {
+                        
+                }
+
+
+                Event::Resize(width, height) => {
+
+                    gl.gl.viewport(
+                        0,
+                        0,
+                        width as i32,
+                        height as i32,
+                    );
+                
+                    gl.clear();
+                }
+
+                _ => ()
+            }
+
+        });
 }

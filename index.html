@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html>
+<html style="margin:0; padding:0; max-height:100vh; overflow:hidden;">
   <head>
     <meta charset="utf-8" />
     <title>Avokado</title>
   </head>
 
-  <body style="margin: 0px; position:absolute; height:100%;width:100%; padding: 0;">
+  <body style="margin: 0px; position:absolute; height:100%; width:100%; padding: 0;">
 
-    <canvas id="canvas", style="height:100%;width:100%;" ></canvas>    
+    <canvas id="canvas", style="height:100%; width:100%;" ></canvas>    
 
     <audio id="music" src="./src/sound/music.mp3" style="display: none;" loop></audio>
 
@@ -22,14 +22,12 @@
 
       let m = document.getElementById("music");
 
-
       wasm().then((module) => {
 
         main("canvas");
 
-        document.addEventListener('keydown', function(event) { keyboard_event("down_" + event.key); });       
-
-        document.addEventListener('keyup', function(event) { keyboard_event("up_" + event.key); }); 
+        document.addEventListener('keydown', function(event) {keyboard_event("d" + event.code);});       
+        document.addEventListener('keyup', function(event) { keyboard_event("u" + event.code); }); 
 
         window.addEventListener('resize', function() {
            resize_event(window.innerWidth, window.innerHeight);
