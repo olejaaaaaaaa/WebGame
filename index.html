@@ -5,28 +5,41 @@
     <title>Avokado</title>
   </head>
 
-  <body>
-    <canvas id="my_canvas", style="height:100%;width:100%"></canvas>    
+  <body style="margin: 0px; position:absolute; height:100%;width:100%; padding: 0;">
+
+    <canvas id="canvas", style="height:100%;width:100%;" ></canvas>    
+
     <audio id="music" src="./src/sound/music.mp3" style="display: none;" loop></audio>
 
     <script type="module">
-      import { default as wasm, main, Event } from "./pkg/yellow.js";
+      import { 
+        default as wasm, 
+        main, 
+        keyboard_event,
+        update_event,
+        resize_event,
+      } from "./pkg/yellow.js";
 
       let m = document.getElementById("music");
 
+
       wasm().then((module) => {
 
+        main("canvas");
 
-        document.addEventListener('keydown', function(event) {
-          Event(event.key);
-        });          
-            
+        document.addEventListener('keydown', function(event) { keyboard_event("down_" + event.key); });       
+
+        document.addEventListener('keyup', function(event) { keyboard_event("up_" + event.key); }); 
+
+        window.addEventListener('resize', function() {
+           resize_event(window.innerWidth, window.innerHeight);
+        }); 
           
-          
-      });
+        setInterval(update_event, 60);
+      });  
 
-      
 
+    
     </script>
   </body>
 </html>

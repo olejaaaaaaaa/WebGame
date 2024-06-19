@@ -3,19 +3,31 @@
 /**
 * @param {string} ev
 */
-export function Event(ev: string): void;
+export function keyboard_event(ev: string): void;
 /**
 */
-export function main(): void;
+export function update_event(): void;
+/**
+* @param {number} width
+* @param {number} height
+*/
+export function resize_event(width: number, height: number): void;
+/**
+* @param {string} canvas
+*/
+export function main(canvas: string): void;
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
-  readonly Event: (a: number, b: number) => void;
-  readonly main: () => void;
+  readonly keyboard_event: (a: number, b: number) => void;
+  readonly update_event: () => void;
+  readonly resize_event: (a: number, b: number) => void;
+  readonly main: (a: number, b: number) => void;
   readonly __wbindgen_malloc: (a: number, b: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
+  readonly __wbindgen_exn_store: (a: number) => void;
 }
 
 export type SyncInitInput = BufferSource | WebAssembly.Module;
