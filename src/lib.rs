@@ -261,7 +261,7 @@ gl.create_vertex_buffer_dynamic(vertices);
             
             
                     gl.gl.draw_arrays(
-                        WebGlRenderingContext::LINE_LOOP,
+                        WebGlRenderingContext::TRIANGLES,
                         0,
                         (3) as i32,
                     );
