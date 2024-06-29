@@ -1,5 +1,10 @@
 <!DOCTYPE html>
-<html style="margin:0; padding:0; max-height:100vh; overflow:hidden;">
+<html style="
+  margin:0; 
+  padding:0; 
+  max-height:100vh; 
+  overflow:hidden;">
+
   <head>
     <meta http-equiv='cache-control' content='no-cache'> 
     <meta http-equiv='expires' content='0'> 
@@ -8,39 +13,47 @@
     <title>Avokado</title>
   </head>
 
-  <body style="margin: 0px; position:absolute; height:100%; width:100%; padding: 0;">
+  <body style="
+    margin: 0px; 
+    position: absolute; 
+    height: 100%; 
+    width: 100%; 
+    padding: 0;">
 
-    <canvas id="canvas", style="height:100%; width:100%;" ></canvas>    
+  <canvas id="canvas", style="height:100%; width:100%;" ></canvas>    
 
-    <audio id="music" src="./src/sound/music.mp3" style="display: none;" loop></audio>
+  <audio id="music" src="./src/sound/music.mp3" style="display: none;" loop></audio>
 
     <script type="module">
       import { 
         default as wasm, 
         main, 
-        keyboard_event,
+        keyboard_event_up,
+        keyboard_event_down,
         update_event,
         resize_event,
       } from "./pkg/yellow.js";
-
-      let m = document.getElementById("music");
 
       wasm().then((module) => {
 
         main("canvas");
 
-        document.addEventListener('keydown', function(event) {keyboard_event("d" + event.code);});       
-        document.addEventListener('keyup', function(event) { keyboard_event("u" + event.code); }); 
+        document.addEventListener('keydown', function(event) {keyboard_event_down(event.code);});       
+        document.addEventListener('keyup', function(event) { keyboard_event_up(event.code); }); 
 
         window.addEventListener('resize', function() {
            resize_event(window.innerWidth, window.innerHeight);
         }); 
           
-        setInterval(update_event, 60);
+        function update() {
+          update_event()
+          window.requestAnimationFrame(update);
+        }
+  
+        update();
+       
       });  
 
-
-    
     </script>
   </body>
 </html>

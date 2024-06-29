@@ -3,7 +3,11 @@
 /**
 * @param {string} ev
 */
-export function keyboard_event(ev: string): void;
+export function keyboard_event_up(ev: string): void;
+/**
+* @param {string} ev
+*/
+export function keyboard_event_down(ev: string): void;
 /**
 */
 export function update_event(): void;
@@ -21,13 +25,13 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
-  readonly keyboard_event: (a: number, b: number) => void;
+  readonly keyboard_event_up: (a: number, b: number) => void;
+  readonly keyboard_event_down: (a: number, b: number) => void;
   readonly update_event: () => void;
   readonly resize_event: (a: number, b: number) => void;
   readonly main: (a: number, b: number) => void;
   readonly __wbindgen_malloc: (a: number, b: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
-  readonly __wbindgen_exn_store: (a: number) => void;
 }
 
 export type SyncInitInput = BufferSource | WebAssembly.Module;
