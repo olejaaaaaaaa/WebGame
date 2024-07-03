@@ -30,6 +30,10 @@
         main, 
         keyboard_event_up,
         keyboard_event_down,
+
+        touch_event_up,
+        touch_event_down,
+
         update_event,
         resize_event,
       } from "./pkg/yellow.js";
@@ -38,8 +42,13 @@
 
         main("canvas");
 
+        function getTouches(evt) {
+            return evt.touches;
+        }
+
         document.addEventListener('keydown', function(event) {keyboard_event_down(event.code);});       
         document.addEventListener('keyup', function(event) { keyboard_event_up(event.code); }); 
+        document.addEventListener('touchstart', function(event) { touch_event_down(getTouches(event)[0].clientX, getTouches(event)[0].clientY); }); 
 
         window.addEventListener('resize', function() {
            resize_event(window.innerWidth, window.innerHeight);

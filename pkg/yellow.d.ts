@@ -17,6 +17,16 @@ export function update_event(): void;
 */
 export function resize_event(width: number, height: number): void;
 /**
+* @param {number} x
+* @param {number} y
+*/
+export function touch_event_up(x: number, y: number): void;
+/**
+* @param {number} x
+* @param {number} y
+*/
+export function touch_event_down(x: number, y: number): void;
+/**
 * @param {string} canvas
 */
 export function main(canvas: string): void;
@@ -29,9 +39,12 @@ export interface InitOutput {
   readonly keyboard_event_down: (a: number, b: number) => void;
   readonly update_event: () => void;
   readonly resize_event: (a: number, b: number) => void;
+  readonly touch_event_up: (a: number, b: number) => void;
+  readonly touch_event_down: (a: number, b: number) => void;
   readonly main: (a: number, b: number) => void;
   readonly __wbindgen_malloc: (a: number, b: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
+  readonly __wbindgen_exn_store: (a: number) => void;
 }
 
 export type SyncInitInput = BufferSource | WebAssembly.Module;
