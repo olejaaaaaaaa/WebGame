@@ -63,14 +63,18 @@ pub fn main(canvas: &str) {
 
                 Event::Update() => {
 
+                    gl.clear();
+
                     gl.create_render_object(
                         VERTEX_SHADER_1, 
                         FRAGMENT_SHADER_1, 
                         HashMap::from( [("pos", vertices)] ), 
-                        WebGlRenderingContext::LINE_LOOP
+                        WebGlRenderingContext::TRIANGLES
                     );
 
                     gl.draw();
+
+                    
                 }
 
                 Event::Resize(width, height) => {
